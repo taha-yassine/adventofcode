@@ -36,3 +36,14 @@ np.sum(np.any(np.stack([y_left,y_right,y_bottom,y_top]),axis=0))
 np.sum(np.any(np.stack([np.all((np.concatenate((np.zeros_like(trees)-1,trees),axis=1)[:,np.arange(trees.shape[0])+1 + np.expand_dims(np.arange(trees.shape[0]),axis=1)] < np.repeat(np.concatenate((np.zeros_like(trees)-1,trees),axis=1)[:,np.arange(trees.shape[0])+1 + np.expand_dims(np.arange(trees.shape[0]),axis=1)][:,:,-1,...,np.newaxis],trees.shape[0],axis=2))[...,:-1],axis=2),np.all((np.concatenate((np.zeros_like(trees[:,::-1])-1,trees[:,::-1]),axis=1)[:,np.arange(trees[:,::-1].shape[0])+1 + np.expand_dims(np.arange(trees[:,::-1].shape[0]),axis=1)] < np.repeat(np.concatenate((np.zeros_like(trees[:,::-1])-1,trees[:,::-1]),axis=1)[:,np.arange(trees[:,::-1].shape[0])+1 + np.expand_dims(np.arange(trees[:,::-1].shape[0]),axis=1)][:,:,-1,...,np.newaxis],trees[:,::-1].shape[0],axis=2))[...,:-1],axis=2)[:,::-1],np.all((np.concatenate((np.zeros_like(trees.T)-1,trees.T),axis=1)[:,np.arange(trees.T.shape[0])+1 + np.expand_dims(np.arange(trees.T.shape[0]),axis=1)] < np.repeat(np.concatenate((np.zeros_like(trees.T)-1,trees.T),axis=1)[:,np.arange(trees.T.shape[0])+1 + np.expand_dims(np.arange(trees.T.shape[0]),axis=1)][:,:,-1,...,np.newaxis],trees.T.shape[0],axis=2))[...,:-1],axis=2).T,np.all((np.concatenate((np.zeros_like((trees.T)[:,::-1])-1,(trees.T)[:,::-1]),axis=1)[:,np.arange((trees.T)[:,::-1].shape[0])+1 + np.expand_dims(np.arange((trees.T)[:,::-1].shape[0]),axis=1)] < np.repeat(np.concatenate((np.zeros_like((trees.T)[:,::-1])-1,(trees.T)[:,::-1]),axis=1)[:,np.arange((trees.T)[:,::-1].shape[0])+1 + np.expand_dims(np.arange((trees.T)[:,::-1].shape[0]),axis=1)][:,:,-1,...,np.newaxis],(trees.T)[:,::-1].shape[0],axis=2))[...,:-1],axis=2)[:,::-1].T]),axis=0))
 
 # %% Part 2
+scores = np.empty_like(trees)
+count = lambda x: 0 if np.isscalar(x) else min(np.flatnonzero(x[0] <= np.append(x[1:],10))[0],len(x)-2)+1
+for i in range(trees.shape[0]):
+    for j in range(trees.shape[1]):
+        right = count(trees[i,j:])
+        left = count(trees[i,:min(trees.shape[0]-1,j+1)][::-1])
+        up = count(trees[:min(trees.shape[0]-1,i+1),j][::-1])
+        down = count(trees[i:,j])
+        scores[i,j] = np.prod([right,left,up,down])
+
+np.max(scores)
